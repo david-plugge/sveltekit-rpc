@@ -13,14 +13,16 @@
 	}
 </script>
 
-<form onsubmit={preventDefault(() => testtest.mutate({ username }))}>
-	<input type="text" bind:value={username} />
+<div class="mx-auto my-16 max-w-xl">
+	<form onsubmit={preventDefault(() => testtest.mutate({ username }))} class="flex flex-col gap-2">
+		<input class="rounded border px-3 py-2" type="text" bind:value={username} />
+
+		<button class="rounded bg-indigo-600 px-3 py-2 text-sm font-semibold text-white">Submit</button>
+	</form>
 
 	{#if testtest.isLoading}
 		<div>Loading...</div>
 	{:else if testtest.result}
-		<pre>{JSON.stringify(testtest.result.type, null, 2)}</pre>
+		<pre>{JSON.stringify(testtest.result, null, 2)}</pre>
 	{/if}
-
-	<button>Submit</button>
-</form>
+</div>

@@ -4,6 +4,8 @@ import picomatch from 'picomatch';
 import path from 'path';
 import { getExports } from './getExports.js';
 
+const MANIFEST_ID = 'sveltekit-rpc/manifest';
+
 export interface SvelteKitRpcOptions {
 	baseDir?: string;
 	pattern?: string;
@@ -35,13 +37,13 @@ export default function sveltekitRpc({
 		},
 
 		resolveId(source) {
-			if (source === 'sveltekit-rpc/manifest') {
-				return 'virtual:sveltekit-rpc/manifest';
+			if (source === MANIFEST_ID) {
+				return `virtual:${MANIFEST_ID}`;
 			}
 		},
 
 		async load(id) {
-			if (id !== 'virtual:sveltekit-rpc/manifest') return;
+			if (id !== `virtual:${MANIFEST_ID}`) return;
 
 			const items = await crawler.crawl(root).withPromise();
 
