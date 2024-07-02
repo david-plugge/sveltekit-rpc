@@ -1,17 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import type { GenericContext, GenericResult } from './types.js';
+
 type MaybePromise<T> = T | Promise<T>;
 type Prettify<T> = { [K in keyof T]: T[K] } & {};
 type Merge<A, B> = Omit<A, keyof B> & B;
-
-type GenericContext = {
-	[K: string]: any;
-};
-
-type GenericReturn = {
-	type: string;
-	[K: string]: any;
-};
 
 const DECORATE = Symbol('decorate');
 type Decorate<T extends GenericContext> = {
@@ -26,47 +19,47 @@ function decorate<T extends GenericContext>(decorators: T) {
 
 export function defineMiddleware<
 	const LocalContext extends GenericContext,
-	const LocalReturn extends GenericReturn = never
+	const LocalResult extends GenericResult = never
 >(
 	fn: (
 		context: GenericContext,
 		decorate: <T extends GenericContext>(decorators: T) => Decorate<T>
-	) => MaybePromise<Decorate<LocalContext> | LocalReturn>
+	) => MaybePromise<Decorate<LocalContext> | LocalResult>
 ) {
 	return fn;
 }
 
 export class RpcBuilder<
 	Context extends GenericContext = { input: unknown },
-	Return extends GenericReturn = never
+	Result extends GenericResult = never
 > {
 	#middleware: any[] = [];
 
-	extend<LocalContext extends GenericContext, LocalReturn extends GenericReturn>(
-		other: RpcBuilder<LocalContext, LocalReturn>
+	extend<LocalContext extends GenericContext, LocalResult extends GenericResult>(
+		other: RpcBuilder<LocalContext, LocalResult>
 	) {
 		const builder = new RpcBuilder<
 			Prettify<Merge<Context, LocalContext>>,
-			Return | (GenericReturn extends LocalReturn ? never : LocalReturn)
+			Result | (GenericResult extends LocalResult ? never : LocalResult)
 		>();
 		builder.#middleware = [...this.#middleware, ...other.#middleware];
 		return builder;
 	}
 
-	use<const LocalContext extends GenericContext, const LocalReturn extends GenericReturn = never>(
+	use<const LocalContext extends GenericContext, const LocalResult extends GenericResult = never>(
 		fn: (
 			context: Context,
 			decorate: <T extends GenericContext>(decorators: T) => Decorate<T>
-		) => MaybePromise<Decorate<LocalContext> | LocalReturn>
+		) => MaybePromise<Decorate<LocalContext> | LocalResult>
 	): RpcBuilder<
 		Prettify<Merge<Context, LocalContext>>,
-		Return | (GenericReturn extends LocalReturn ? never : LocalReturn)
+		Result | (GenericResult extends LocalResult ? never : LocalResult)
 	>;
-	use<const LocalContext extends GenericContext, const LocalReturn extends GenericReturn = never>(
-		other: RpcBuilder<LocalContext, LocalReturn>
+	use<const LocalContext extends GenericContext, const LocalResult extends GenericResult = never>(
+		other: RpcBuilder<LocalContext, LocalResult>
 	): RpcBuilder<
 		Prettify<Merge<Context, LocalContext>>,
-		Return | (GenericReturn extends LocalReturn ? never : LocalReturn)
+		Result | (GenericResult extends LocalResult ? never : LocalResult)
 	>;
 	use(mw: any): any {
 		if (mw instanceof RpcBuilder) {
@@ -83,11 +76,11 @@ export class RpcBuilder<
 		throw new Error('invalid middleware');
 	}
 
-	create<const LocalReturn extends GenericReturn>(
-		fn: (context: Context) => MaybePromise<LocalReturn>
+	create<const LocalResult extends GenericResult>(
+		fn: (context: Context) => MaybePromise<LocalResult>
 	): (
-		...args: [unknown] extends [Context['input']] ? [] : [input: Context['input']]
-	) => Promise<Return | LocalReturn> {
+		input: [unknown] extends [Context['input']] ? void : Context['input']
+	) => Promise<Result | LocalResult> {
 		return async (...args: unknown[]) => {
 			const context: any = {
 				input: args[0]
