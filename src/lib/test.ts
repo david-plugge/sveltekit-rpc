@@ -58,8 +58,12 @@ class User extends RpcTarget {
 
 type Prettify<T> = { [K in keyof T]: T[K] } & {};
 
+type StubFn<Fn> = Fn extends (...args: infer Args) => infer Return
+	? (...args: Args) => Promise<Return>
+	: never;
+
 type UnwrapRpcTarget<T extends RpcTarget> = Prettify<{
-	[K in keyof T as T[K] extends (...args: any[]) => any ? K : never]: T[K];
+	[K in keyof T as T[K] extends (...args: any[]) => any ? K : never]: StubFn<T[K]>;
 }>;
 
 type ParseData<T> = Prettify<{
