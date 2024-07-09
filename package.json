@@ -27,8 +27,8 @@
 		"!dist/**/*.spec.*"
 	],
 	"peerDependencies": {
-		"svelte": "^5.0.0-next.1",
-		"@sveltejs/kit": "^2.0.0"
+		"@sveltejs/kit": "^2.0.0",
+		"svelte": "^5.0.0-next.1"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.28.1",
@@ -63,6 +63,7 @@
 		"acorn-typescript": "^1.4.13",
 		"fdir": "^6.1.1",
 		"picomatch": "^4.0.2",
+		"superjson": "^2.2.1",
 		"valibot": "^0.35.0"
 	},
 	"svelte": "./dist/index.js",
